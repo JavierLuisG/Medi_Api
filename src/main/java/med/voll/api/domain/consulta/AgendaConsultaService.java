@@ -1,5 +1,6 @@
 package med.voll.api.domain.consulta;
 
+import med.voll.api.domain.consulta.validaciones.ValidadorDeConsultas;
 import med.voll.api.domain.medico.Medico;
 import med.voll.api.domain.medico.MedicoRepository;
 import med.voll.api.domain.paciente.Paciente;
@@ -7,6 +8,8 @@ import med.voll.api.domain.paciente.PacienteRepository;
 import med.voll.api.infra.errores.ValidacionDeIntegridad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class AgendaConsultaService {
@@ -16,19 +19,27 @@ public class AgendaConsultaService {
     private PacienteRepository pacienteRepository;
     @Autowired
     private ConsultaRepository consultaRepository;
-    public void agendar(DatosAgendarConsulta datosAgendarConsulta){
-        if (pacienteRepository.findById(datosAgendarConsulta.idPaciente()).isPresent()){
+    @Autowired
+    List<ValidadorDeConsultas> validadorDeConsultasList;
+    public DatosDetalleConsulta agendar(DatosAgendarConsulta datosAgendarConsulta){
+        if (!pacienteRepository.findById(datosAgendarConsulta.idPaciente()).isPresent()){
             throw new ValidacionDeIntegridad("Este id para el paciente no fue encontrado");
         }
-        if (datosAgendarConsulta.idMedico() != null && medicoRepository.existsById(datosAgendarConsulta.idMedico())){
+        if (datosAgendarConsulta.idMedico() != null && !medicoRepository.existsById(datosAgendarConsulta.idMedico())){
             throw new ValidacionDeIntegridad("Este id para el médico no fue encontrado");
         }
+        //validaciones
+        validadorDeConsultasList.forEach(vali -> vali.validar(datosAgendarConsulta));
 
         Paciente paciente = pacienteRepository.findById(datosAgendarConsulta.idPaciente()).get();
         Medico medico = seleccionarMedico(datosAgendarConsulta);
+        if (medico == null){
+            throw new ValidacionDeIntegridad("No existe médicos disponibles para este horario y especialidad");
+        }
 
         Consulta consulta = new Consulta(null, medico, paciente, datosAgendarConsulta.fecha());
         consultaRepository.save(consulta);
+        return new DatosDetalleConsulta(consulta);
     }
 
     private Medico seleccionarMedico(DatosAgendarConsulta datosAgendarConsulta) {

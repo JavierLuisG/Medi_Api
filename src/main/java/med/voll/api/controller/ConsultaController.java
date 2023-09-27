@@ -19,7 +19,7 @@ public class ConsultaController {
     public ResponseEntity agendar(@RequestBody @Valid DatosAgendarConsulta datos) {
         System.out.println(datos);
 
-        agendaConsultaService.agendar(datos);
-        return ResponseEntity.ok(new DatosDetalleConsulta(null,null,null,null));
+        DatosDetalleConsulta response = agendaConsultaService.agendar(datos);
+        return ResponseEntity.ok(response);
     }
 }

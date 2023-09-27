@@ -3,7 +3,7 @@ package med.voll.api.domain.paciente;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Query;
 
 /**
  * Con esta interface se podra hacer todito el proceso de gestion con la base de datos a nivel del CRUD
@@ -14,4 +14,10 @@ import org.springframework.stereotype.Repository;
  */
 public interface PacienteRepository extends JpaRepository<Paciente, Long> {
     Page<Paciente> findByActivoTrue(Pageable pageable);
+    @Query("""
+            select p.activo 
+            from Paciente p
+            where p.id=:idPaciente
+            """)
+    boolean findActivoById(Long idPaciente);
 }

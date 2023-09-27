@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
  *  1ro: El tipo de objeto que se va a guardar aqui, el tipo de entidad con el que se va a trabajar en este repositorio
  *  2do: El tipo de objeto del id
  */
+@Repository
 public interface MedicoRepository extends JpaRepository<Medico, Long> {
     Page<Medico> findByActivoTrue(Pageable pageable);
 
@@ -24,14 +25,25 @@ public interface MedicoRepository extends JpaRepository<Medico, Long> {
      * @param especialidad -> dentro de la query =:especialidad hace referencia a este parametro
      */
     @Query("""
-            select * from medicos m
-            where m.activo = 1 and
-            m.especialidad = :especialidad and
+            select m from Medico m
+            where m.activo= true
+            and
+            m.especialidad=:especialidad
+            and
             m.id not in(
-                select c.medico.id from consultas c
-                where c.fecha = :fecha
+                select c.medico.id from Consulta c
+                where
+                c.fecha=:fecha
             )
-            order by rand() limit 1
+            order by rand()
+            limit 1
             """)
     Medico seleccionarMedicoConEspecialidadEnFecha(Especialidad especialidad, LocalDateTime fecha);
+
+    @Query("""
+            select m.activo
+            from Medico m
+            where m.id=:idMedico
+            """)
+    boolean findActivoById(Long idMedico);
 }

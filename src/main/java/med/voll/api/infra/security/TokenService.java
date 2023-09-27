@@ -18,10 +18,10 @@ public class TokenService {
     @Value("${api.security.secret}")
     private String apiSecret;
     public String generarToken(Usuario usuario){
-        String token;
+//        String token;
         try {
             Algorithm algorithm = Algorithm.HMAC256(apiSecret);
-            token = JWT.create()
+            return JWT.create()
                     .withIssuer("voll med")
                     .withSubject(usuario.getLogin())
                     .withClaim("id", usuario.getId())
@@ -30,7 +30,7 @@ public class TokenService {
         } catch (JWTCreationException exception){
             throw new RuntimeException();
         }
-        return token;
+//        return token;
     }
     private Instant generarFechaExpiracion(){
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-05:00"));
@@ -50,6 +50,7 @@ public class TokenService {
         } catch (JWTVerificationException exception){
             System.out.println(exception.toString());
         }
+        assert verifier != null;
         if (verifier.getSubject() == null){
             throw new RuntimeException("Verifier invalido");
         }
