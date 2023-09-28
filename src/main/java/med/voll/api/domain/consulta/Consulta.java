@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import med.voll.api.domain.medico.Medico;
 import med.voll.api.domain.paciente.Paciente;
+import med.voll.api.domain.consulta.validaciones.MotivoCancelamiento;
 
 import java.time.LocalDateTime;
 
@@ -25,5 +26,18 @@ public class Consulta {
     @JoinColumn(name = "paciente_id")
     private Paciente paciente;
     private LocalDateTime fecha;
+    @Column(name = "motivo_cancelamiento")
+    @Enumerated(EnumType.STRING)
+    private MotivoCancelamiento motivoCancelamiento;
+
+    public Consulta(Medico medico, Paciente paciente, LocalDateTime fecha) {
+        this.medico = medico;
+        this.paciente = paciente;
+        this.fecha = fecha;
+    }
+
+    public void cancelar(MotivoCancelamiento motivo){
+        this.motivoCancelamiento = motivo;
+    }
 
 }
