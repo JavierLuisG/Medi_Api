@@ -1,5 +1,7 @@
 package med.voll.api.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import med.voll.api.domain.direccion.DatosDireccion;
 import med.voll.api.domain.paciente.*;
@@ -16,6 +18,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/pacientes")
+@SecurityRequirement(name = "bearer-key")
 public class PacienteController {
     @Autowired
     private PacienteRepository pacienteRepository;
@@ -25,6 +28,10 @@ public class PacienteController {
      * created 201
      */
     @PostMapping
+    @Operation(
+            summary = "Registra un nuevo paciente",
+            description = "",
+            tags = {"Paciente"})
     public ResponseEntity<DatosRespuestaPaciente> registrarPaciente(
             @RequestBody @Valid DatosRegistroPaciente datosRegistroPaciente, UriComponentsBuilder uriComponentsBuilder){
         Paciente paciente = pacienteRepository.save(new Paciente(datosRegistroPaciente));
@@ -42,6 +49,10 @@ public class PacienteController {
      * el mismo, 200 ok
      */
     @GetMapping
+    @Operation(
+            summary = "Obtiene el listado de los pacientes",
+            description = "",
+            tags = {"Paciente"})
     public ResponseEntity<Page<DatosListadoPaciente>> listadoPaciente(@PageableDefault Pageable pageable){
         return ResponseEntity.ok(pacienteRepository.findByActivoTrue(pageable).map(DatosListadoPaciente::new));
 //        return pacienteRepository.findAll(pageable).map(DatosListadoPaciente::new);
@@ -52,6 +63,10 @@ public class PacienteController {
      */
     @PutMapping
     @Transactional
+    @Operation(
+            summary = "Actualiza los datos de un paciente",
+            description = "",
+            tags = {"Paciente"})
     public ResponseEntity<DatosActualizarPaciente> actualizarPaciente(@RequestBody @Valid DatosActualizarPaciente datosActualizarPaciente){
         Paciente paciente = pacienteRepository.getReferenceById(datosActualizarPaciente.id());
         paciente.actualizarDatos(datosActualizarPaciente);
@@ -67,6 +82,10 @@ public class PacienteController {
      */
     @DeleteMapping("/{id}")
     @Transactional
+    @Operation(
+            summary = "Elimina un paciente a partir del ID",
+            description = "",
+            tags = {"Paciente"})
     public ResponseEntity eliminarPaciente(@PathVariable Long id){
         Paciente paciente = pacienteRepository.getReferenceById(id);
         paciente.inhabilitarPaciente();
@@ -79,6 +98,10 @@ public class PacienteController {
 //        pacienteRepository.delete(paciente);
 //    }
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Obtiene los detalles de un paciente con el ID indicado",
+            description = "",
+            tags = {"Paciente"})
     public ResponseEntity<DatosRespuestaPaciente> retornaDatosPaciente(@PathVariable Long id){
         Paciente paciente = pacienteRepository.getReferenceById(id);
         return ResponseEntity.ok(new DatosRespuestaPaciente(paciente.getId(), paciente.getNombre(),

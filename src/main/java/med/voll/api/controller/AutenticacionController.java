@@ -1,5 +1,6 @@
 package med.voll.api.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import med.voll.api.domain.usuario.DatosAutenticacionUsuario;
 import med.voll.api.domain.usuario.Usuario;
@@ -23,6 +24,10 @@ public class AutenticacionController {
     @Autowired
     private TokenService tokenService;
     @PostMapping
+    @Tag(
+            name = "Autenticación",
+            description = "Obtiene el token para el usuario asignado que da acceso al resto de endpoint"
+    ) // en vez de utilizar @Operation se utiliza @Tag
     public ResponseEntity autenticarUsuario(@RequestBody @Valid DatosAutenticacionUsuario datosAutenticacionUsuario){
         Authentication authenticationToken = new UsernamePasswordAuthenticationToken(datosAutenticacionUsuario.login(),
                 datosAutenticacionUsuario.clave());

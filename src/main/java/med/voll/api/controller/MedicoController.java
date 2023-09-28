@@ -1,5 +1,7 @@
 package med.voll.api.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import med.voll.api.domain.direccion.DatosDireccion;
 import med.voll.api.domain.medico.*;
@@ -16,6 +18,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/medicos")
+@SecurityRequirement(name = "bearer-key")
 public class MedicoController {
     // no es recomendable utilizar Autowired
     @Autowired // anotacion especial para no instanciar el MedicoRepository haciendo "= new ..."
@@ -25,6 +28,10 @@ public class MedicoController {
      * ResponseEntity: es un wrapper para encapsular la respuesta que le vamos a dar a nuestro servidor
      */
     @PostMapping
+    @Operation(
+            summary = "Registra un nuevo médico en la base de datos",
+            description = "",
+            tags = {"Médico"})
     public ResponseEntity<DatosRespuestaMedico> registrarMedico(
             @RequestBody @Valid DatosRegistroMedico datosRegistroMedico, UriComponentsBuilder uriComponentsBuilder){
         Medico medico = medicoRepository.save(new Medico(datosRegistroMedico));
@@ -48,6 +55,10 @@ public class MedicoController {
      * @PageableDefault es para poder definir los valores que son por defecto y asi tener un orden ya predefinido
      */
     @GetMapping
+    @Operation(
+            summary = "Obtiene el listado de los médicos",
+            description = "",
+            tags = {"Médico"})
     public ResponseEntity<Page<DatosListadoMedico>> listadoMedicos(@PageableDefault Pageable pageable){
         return ResponseEntity.ok(medicoRepository.findByActivoTrue(pageable).map(DatosListadoMedico::new)); //con findAll() aunque no tenga funciones MedicoRepository, por la interface Jpa.. se puede
 //        return medicoRepository.findAll(pageable).map(DatosListadoMedico::new); //con findAll() aunque no tenga funciones MedicoRepository, por la interface Jpa.. se puede
@@ -63,6 +74,10 @@ public class MedicoController {
      */
     @PutMapping
     @Transactional
+    @Operation(
+            summary = "Actualiza los datos de un médico existente",
+            description = "",
+            tags = {"Médico"})
     public ResponseEntity actualizarMedico(@RequestBody @Valid DatosActualizarMedico datosActualizarMedico){
         Medico medico = medicoRepository.getReferenceById(datosActualizarMedico.id());
         medico.actualizarDatos(datosActualizarMedico);
@@ -79,6 +94,10 @@ public class MedicoController {
      */
     @DeleteMapping("/{id}")
     @Transactional
+    @Operation(
+            summary = "Elimina un médico registrado - inactivo",
+            description = "",
+            tags = {"Médico"})
     public ResponseEntity eliminarMedico(@PathVariable Long id){
         Medico medico = medicoRepository.getReferenceById(id);
         medico.inhabilitarMedico();
@@ -98,6 +117,10 @@ public class MedicoController {
 //        medicoRepository.delete(medico);
 //    }
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Obtiene los registros del médico con el ID",
+            description = "",
+            tags = {"Médico"})
     public ResponseEntity<DatosRespuestaMedico> retornaDatosMedico(@PathVariable Long id){
         Medico medico = medicoRepository.getReferenceById(id);
         medico.inhabilitarMedico();
@@ -107,5 +130,4 @@ public class MedicoController {
                         medico.getDireccion().getComplemento()));
         return ResponseEntity.ok(datosMedicos);
     }
-
 }
